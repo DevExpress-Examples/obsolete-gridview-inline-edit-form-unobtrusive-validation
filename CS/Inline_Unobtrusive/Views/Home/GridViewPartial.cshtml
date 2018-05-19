@@ -1,0 +1,104 @@
+@using System.Linq;
+
+@Html.DevExpress().GridView(
+    settings => {
+        settings.Name = "GridView";
+        settings.CallbackRouteValues = new { Controller = "Home", Action = "GridViewPartial" };
+        settings.SettingsEditing.AddNewRowRouteValues = new { Controller = "Home", Action = "InlineEditingAddNewPartial" };
+        settings.SettingsEditing.UpdateRowRouteValues = new { Controller = "Home", Action = "InlineEditingUpdatePartial" };
+        
+        settings.KeyFieldName = "ID";
+        settings.SettingsEditing.Mode = GridViewEditingMode.Inline;
+
+
+        settings.CommandColumn.Visible = true;
+        settings.CommandColumn.Width = 150;
+        settings.CommandColumn.NewButton.Visible = true;
+        settings.CommandColumn.EditButton.Visible = true;
+
+        settings.Styles.InlineEditCell.CssClass = "editCell";
+        
+
+        settings.Columns.Add(column => { //command column during inline editing
+            column.FieldName = "unboundCommand";
+            column.VisibleIndex = 0;
+            column.Caption = "#";
+            column.Visible = false;
+            column.Width = 150;   
+            
+            column.ColumnType = MVCxGridViewColumnType.TextBox;            
+            column.UnboundType = DevExpress.Data.UnboundColumnType.String;
+
+            column.SetEditItemTemplateContent(c => { // edit row during editing
+                ViewContext.Writer.Write("<table style='width:100%'><tr><td class='editColumn'>");
+                Html.DevExpress().HyperLink(hlSettings => {
+                    hlSettings.Name = "Update";
+                    hlSettings.Properties.Text = "Update";
+                    hlSettings.ControlStyle.CssClass = "editColumnLink";
+                    hlSettings.Properties.ClientSideEvents.Click = "OnCustomUpdate";
+                }).Render();
+                Html.DevExpress().HyperLink(hlSettings => {
+                    hlSettings.Name = "Cancel";
+                    hlSettings.Properties.Text = "Cancel";
+                    hlSettings.ControlStyle.CssClass = "editColumnLink";
+                    hlSettings.Properties.ClientSideEvents.Click = "OnCustomCancel";
+                }).Render();
+                ViewContext.Writer.Write("</td></tr></table>");
+            });
+            
+            column.SetDataItemTemplateContent(c => { //other rows during editing
+                ViewContext.Writer.Write("<table style='width:100%' cellpadding='0' cellspacing='0'><tr><td class='editColumn'>");
+                Html.DevExpress().HyperLink(hlSettings => {
+                    hlSettings.Name = "Edit" + c.VisibleIndex;
+                    hlSettings.Properties.Text = "Edit";
+                    hlSettings.ControlStyle.CssClass = "editColumnLink";
+                    hlSettings.CustomJSProperties = (s,e) => {
+                        e.Properties["cp_key"] = c.KeyValue;
+                    };
+                    hlSettings.Properties.ClientSideEvents.Click = "OnCustomEdit";
+                }).Render();
+                Html.DevExpress().HyperLink(hlSettings => {
+                    hlSettings.Name = "New" + c.VisibleIndex;
+                    hlSettings.Properties.Text = "New";
+                    hlSettings.ControlStyle.CssClass = "editColumnLink";
+                    hlSettings.Properties.ClientSideEvents.Click = "OnCustomAddNew";
+                }).Render();
+                ViewContext.Writer.Write("</td></tr></table>");
+            });
+        });
+
+        settings.Columns.Add(column => {
+            column.FieldName = "ID";
+            column.Width = 200;
+        });
+        settings.Columns.Add(column => {
+            column.FieldName = "Name";
+            column.Width = 200;
+        });
+        settings.Columns.Add(column => {
+            column.FieldName = "City";
+            column.Width = 200;
+        });
+
+        settings.BeforeGetCallbackResult = (s, e) => {
+            var grid = s as MVCxGridView;
+            foreach (var column in grid.Columns) {
+                if (column.GetType() == typeof(MVCxGridViewCommandColumn))
+                    ((MVCxGridViewCommandColumn)column).Visible = !grid.IsEditing;
+            }
+            grid.Columns["unboundCommand"].Visible = grid.IsEditing;
+
+        };
+
+        foreach (MVCxGridViewColumn column in settings.Columns) {
+            if (column.FieldName == "unboundCommand") continue;
+            column.SetEditItemTemplateContent(c => {
+                var customer = c.VisibleIndex < 0 ? new Inline_Unobtrusive.Models.Customer()
+                    : c.Grid.GetRow(c.VisibleIndex);
+                ViewData["Property"] = column.FieldName;
+                ViewData["DataItem"] = c.DataItem;
+                Html.RenderPartial("Editor", customer, ViewData);
+            });
+        }
+
+    }).SetEditErrorText((string)ViewData["EditError"]).Bind(Model).GetHtml()

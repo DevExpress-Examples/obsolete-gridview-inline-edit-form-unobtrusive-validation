@@ -1,0 +1,9 @@
+﻿@model Inline_Unobtrusive.Models.Customer
+
+@Html.DevExpress().TextBox(s => {
+    s.Name = ViewData["Property"].ToString();
+    s.ShowModelErrors = true;
+    s.Properties.ValidationSettings.ErrorDisplayMode = ErrorDisplayMode.ImageWithTooltip;
+    s.Properties.ValidationSettings.Display = Display.Dynamic;
+    s.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+}).Bind(DataBinder.Eval(ViewData["DataItem"],ViewData["Property"].ToString())).GetHtml()
