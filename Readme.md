@@ -1,3 +1,13 @@
+<!-- default file list -->
+*Files to look at*:
+
+* [HomeController.cs](./CS/Inline_Unobtrusive/Controllers/HomeController.cs) (VB: [HomeController.vb](./VB/Inline_Unobtrusive/Controllers/HomeController.vb))
+* [Global.asax.cs](./CS/Inline_Unobtrusive/Global.asax.cs) (VB: [Global.asax.vb](./VB/Inline_Unobtrusive/Global.asax.vb))
+* [Customer.cs](./CS/Inline_Unobtrusive/Models/Customer.cs) (VB: [Customer.vb](./VB/Inline_Unobtrusive/Models/Customer.vb))
+* [GridViewPartial.cshtml](./CS/Inline_Unobtrusive/Views/Home/GridViewPartial.cshtml)
+* [Index.cshtml](./CS/Inline_Unobtrusive/Views/Home/Index.cshtml)
+* [Editor.cshtml](./CS/Inline_Unobtrusive/Views/Shared/Editor.cshtml)
+<!-- default file list end -->
 # OBSOLETE - GridView - How to enable unobtrusive validation for inline edit form
 
 
